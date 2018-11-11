@@ -1,21 +1,33 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
-namespace Exsample.GetVideoDuration
+namespace Exsample
 {
     class Program
     {
         static void Main(string[] args)
         {
+            string currentPath = Directory.GetCurrentDirectory();
+
+            Console.Write("PRINT_FORMAT=default Test\r\n");
+            Console.Write("Video File Duretion(mp4) = {0}\r\n", getVideoDuration(currentPath + @"\Test.mp4", false));
+            Console.Write("Video File Duretion(flv) = {0}\r\n\r\n", getVideoDuration(currentPath + @"\Test.flv", false));
+
+            Console.Write("PRINT_FORMAT=CSV Test\r\n");
+            Console.Write("Video File Duretion(mp4) = {0}\r\n", getVideoDurationCSV(currentPath + @"\Test.mp4", false));
+            Console.Write("Video File Duretion(FLV) = {0}\r\n\r\n", getVideoDurationCSV(currentPath + @"\Test.flv", false));
+
+            Console.Write("press any key...\r\n");
+            Console.ReadKey();
         }
 
-        private static string getVideoDuration(string path)
+        private static string getVideoDuration(string path, bool decimalpoint)
         {
             try
             {
-                //            string currentPath = Directory.GetCurrentDirectory(); + Path.DirectorySeparatorChar;
                 string currentPath = Directory.GetCurrentDirectory();
-                string commnad = string.Format(" \"{0}\" -v error -show_format -show_entries format=duration -sexagesimal -of default=noprint_wrappers=1:nokey=1", path);
+                string commnad = string.Format("-v error -show_format -show_entries format=duration -sexagesimal -of default=noprint_wrappers=1:nokey=1 \"{0}\"", path);
 
                 using (var process = new System.Diagnostics.Process())
                 {
@@ -25,48 +37,67 @@ namespace Exsample.GetVideoDuration
                         Arguments = commnad,
                         CreateNoWindow = true,
                         UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
                     };
-                    process.OutputDataReceived += OutputDataReceived;
 
-                    process.Start();
-
-                    //string duration = process.StandardOutput.ReadToEnd().Replace("\r\n", "");
-                    string duration = process.StandardOutput.ReadToEnd().Replace("\r\n", "");
-
-                    duration = duration.Substring(0, duration.IndexOf("."));
+                    if (!process.Start()) return null;
 
                     process.WaitForExit();
 
+                    string duration = process.StandardOutput.ReadToEnd();
+
+                    if (decimalpoint)
+                        duration = duration.Substring(0, duration.IndexOf("\r"));
+                    else
+                        duration = duration.Substring(0, duration.IndexOf("."));
+
                     return duration;
                 }
-#if false
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo.FileName = currentPath + @"\ffprobe.exe";
-                process.StartInfo.Arguments = commnad;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.UseShellExecute = false;
-
-                process.Start();
-
-                string duration = process.StandardOutput.ReadToEnd().Replace("\r\n", "");
-
-                duration = duration.Substring(0, duration.IndexOf("."));
-
-                process.WaitForExit();
-                process.Close();
-
-                return duration;
-#endif
             }
             catch
             {
                 return null;
             }
         }
-
-        static void OutputDataReceived(object sender, System.Diagnostics.DataReceivedEventArgs e)
+        private static string getVideoDurationCSV(string path, bool decimalpoint)
         {
-            Console.WriteLine(e.Data);
+            try
+            {
+                string currentPath = Directory.GetCurrentDirectory();
+                string commnad = string.Format("-v error -show_format -show_entries format=duration -sexagesimal -of csv=nokey=0 \"{0}\"", path);
+
+                using (var process = new System.Diagnostics.Process())
+                {
+                    process.StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = currentPath + @"\ffprobe.exe",
+                        Arguments = commnad,
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
+
+                    if (!process.Start()) return null;
+
+                    process.WaitForExit();
+
+                    string stream = process.StandardOutput.ReadToEnd();
+                    string pattern = @"duration=(?<duration>.[^,]*,)";
+
+                    string duration = Regex.Match(stream, pattern).Groups["duration"].Value;
+
+                    if (!decimalpoint)
+                        duration = duration.Substring(0, duration.IndexOf("."));
+
+                    return duration;
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
