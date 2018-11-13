@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Exsample
+namespace Example
 {
     class Program
     {
@@ -10,13 +10,25 @@ namespace Exsample
         {
             string currentPath = Directory.GetCurrentDirectory();
 
-            Console.Write("PRINT_FORMAT=default Test\r\n");
-            Console.Write("Video File Duretion(mp4) = {0}\r\n", getVideoDuration(currentPath + @"\Test.mp4", false));
-            Console.Write("Video File Duretion(flv) = {0}\r\n\r\n", getVideoDuration(currentPath + @"\Test.flv", false));
+            Console.Write("Test:Decimal point valid\r\n");
+            Console.Write(" PRINT_FORMAT=DEFAULT Test\r\n");
+            Console.Write("  Video File Duretion(mp4) = {0}\r\n", getVideoDuration(currentPath + @"\Test.mp4", true));
+            Console.Write("  Video File Duretion(flv) = {0}\r\n", getVideoDuration(currentPath + @"\Test.flv", true));
+            Console.Write(" PRINT_FORMAT=CSV\r\n");
+            Console.Write("  Video File Duretion(mp4) = {0}\r\n", getVideoDurationCSV(currentPath + @"\Test.mp4", true));
+            Console.Write("  Video File Duretion(flv) = {0}\r\n\r\n", getVideoDurationCSV(currentPath + @"\Test.flv", true));
 
-            Console.Write("PRINT_FORMAT=CSV Test\r\n");
-            Console.Write("Video File Duretion(mp4) = {0}\r\n", getVideoDurationCSV(currentPath + @"\Test.mp4", false));
-            Console.Write("Video File Duretion(FLV) = {0}\r\n\r\n", getVideoDurationCSV(currentPath + @"\Test.flv", false));
+            Console.Write("Test:Decimal point invalid\r\n");
+            Console.Write(" PRINT_FORMAT=DEFAULT Test\r\n");
+            Console.Write("  Video File Duretion(mp4) = {0}\r\n", getVideoDuration(currentPath + @"\Test.mp4", false));
+            Console.Write("  Video File Duretion(flv) = {0}\r\n\r\n", getVideoDuration(currentPath + @"\Test.flv", false));
+            Console.Write(" PRINT_FORMAT=CSV\r\n");
+            Console.Write("  Video File Duretion(mp4) = {0}\r\n", getVideoDurationCSV(currentPath + @"\Test.mp4", false));
+            Console.Write("  Video File Duretion(flv) = {0}\r\n\r\n", getVideoDurationCSV(currentPath + @"\Test.flv", false));
+
+            Console.Write("Class usage example\r\n");
+            Console.Write("  Video File Duretion(flv) = {0}\r\n", Example.FFmpeg.getVideoDuration(currentPath + @"\Test.flv", false));
+            Console.Write("  Video File Duretion(flv) = {0}\r\n\r\n", Example.FFmpeg.getVideoDuration(currentPath + @"\Test.flv"));
 
             Console.Write("press any key...\r\n");
             Console.ReadKey();
@@ -84,7 +96,7 @@ namespace Exsample
                     process.WaitForExit();
 
                     string stream = process.StandardOutput.ReadToEnd();
-                    string pattern = @"duration=(?<duration>.[^,]*,)";
+                    string pattern = @"duration=(?<duration>.[^,]*)";
 
                     string duration = Regex.Match(stream, pattern).Groups["duration"].Value;
 

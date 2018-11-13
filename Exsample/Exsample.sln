@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2048
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExsampleGetVideoDuration", "ExsampleGetVideoDuration\ExsampleGetVideoDuration.csproj", "{8822E870-0AED-47E7-9345-D5C610F569AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleGetVideoDuration", "ExsampleGetVideoDuration\ExampleGetVideoDuration.csproj", "{8822E870-0AED-47E7-9345-D5C610F569AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
